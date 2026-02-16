@@ -54,7 +54,7 @@ jobs:
             sed -i -e "s|__ACM_ARN__|${ACM_ARN}|g" kustomization.yml
             kustomize edit set image happy-server=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/happy-server:latest
             kustomize edit set image happy-webapp=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/happy-webapp:latest
-            cp ../skaffold.yml . && skaffold run
+            cp ../../skaffold.yml . && skaffold run
 
 workflows:
   version: 2
