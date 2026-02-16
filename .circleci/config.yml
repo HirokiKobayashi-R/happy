@@ -1,0 +1,35 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@5.4.1
+  aws-ecr: circleci/aws-ecr@9.8.1
+
+jobs:
+  build:
+    executor: aws-ecr/default
+    parameters:
+      dockerfile:
+        type: string
+      repo:
+        type: string
+    steps:
+      - aws-ecr/build_and_push_image:
+          auth:
+            - aws-cli/setup:
+                role_arn: arn:aws:iam::123456789012
+          create_repo: true
+          dockerfile: << parameters.dockerfile >>
+          repo: << parameters.repo >>
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - build:
+          name: build-server
+          dockerfile: Dockerfile.server
+          repo: happy-server
+      - build:
+          name: build-webapp
+          dockerfile: Dockerfile.webapp
+          repo: happy-webapp
