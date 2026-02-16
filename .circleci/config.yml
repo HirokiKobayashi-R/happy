@@ -16,7 +16,10 @@ jobs:
       - aws-ecr/build_and_push_image:
           auth:
             - aws-cli/setup:
-                role_arn: arn:aws:iam::123456789012
+                profile_name: WEB_IDENTITY_PROFILE
+                role_arn: ${AWS_OIDC_ROLE_ARN}
+                role_session_name: circleci-happy-build
+          profile_name: WEB_IDENTITY_PROFILE
           create_repo: true
           dockerfile: << parameters.dockerfile >>
           repo: << parameters.repo >>
@@ -24,6 +27,10 @@ jobs:
 workflows:
   version: 2
   main:
+    when:
+      or:
+        - equal: ["<< pipeline.git.branch >>", "main"]
+        - equal: ["<< pipeline.git.branch >>", "feature/ci"]
     jobs:
       - build:
           name: build-server
