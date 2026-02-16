@@ -40,7 +40,7 @@ jobs:
           role_session_name: circleci-happy-apply
       - aws-eks/update_kubeconfig_with_authenticator:
           aws_profile: WEB_IDENTITY_PROFILE
-          cluster-name: ${CLUSTER_NAME}
+          cluster_name: ${CLUSTER_NAME}
           aws_region: ${AWS_DEFAULT_REGION}
       - package/install-kustomize:
           version: v5.8.1
