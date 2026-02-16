@@ -3,6 +3,8 @@ version: 2.1
 orbs:
   aws-cli: circleci/aws-cli@5.4.1
   aws-ecr: circleci/aws-ecr@9.8.1
+  aws-eks: circleci/aws-eks@3.0.1
+  package: rhems-japan/package@0.0.84
 
 jobs:
   build:
@@ -24,6 +26,36 @@ jobs:
           dockerfile: << parameters.dockerfile >>
           repo: << parameters.repo >>
 
+  apply:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      apply-path:
+        type: string
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile_name: WEB_IDENTITY_PROFILE
+          role_arn: ${AWS_OIDC_ROLE_ARN}
+          role_session_name: circleci-happy-apply
+      - aws-eks/update-kubeconfig-with-web-identity:
+          aws_profile: WEB_IDENTITY_PROFILE
+          cluster-name: ${CLUSTER_NAME}
+          aws_region: ${AWS_DEFAULT_REGION}
+      - package/install-kustomize:
+          version: v5.8.1
+      - package/install-skaffold:
+          version: v2.17.2
+      - run:
+          name: apply
+          working_directory: << parameters.apply-path >>
+          command: |
+            sed -i -e "s|__HOST_NAME__|${HOST_NAME}|g" kustomization.yml
+            sed -i -e "s|__ACM_ARN__|${ACM_ARN}|g" kustomization.yml
+            kustomize edit set image happy-server=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/happy-server:latest
+            kustomize edit set image happy-webapp=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/happy-webapp:latest
+            cp ../skaffold.yml . && skaffold run
+
 workflows:
   version: 2
   main:
@@ -32,11 +64,16 @@ workflows:
         - equal: ["<< pipeline.git.branch >>", "main"]
         - equal: ["<< pipeline.git.branch >>", "feature/ci"]
     jobs:
-      - build:
-          name: build-server
-          dockerfile: Dockerfile.server
-          repo: happy-server
-      - build:
-          name: build-webapp
-          dockerfile: Dockerfile.webapp
-          repo: happy-webapp
+      # - build:
+      #     name: build-server
+      #     dockerfile: Dockerfile.server
+      #     repo: happy-server
+      # - build:
+      #     name: build-webapp
+      #     dockerfile: Dockerfile.webapp
+      #     repo: happy-webapp
+      - apply:
+          apply-path: .circleci/kubernetes/overlays/prod
+          # requires:
+          #   - build-server
+          #   - build-webapp

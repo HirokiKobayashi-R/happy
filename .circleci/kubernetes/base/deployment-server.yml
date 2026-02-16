@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: happy-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: happy-server
+  template:
+    metadata:
+      labels:
+        app: happy-server
+    spec:
+      nodeSelector:
+        karpenter.sh/nodepool: spondemand-amd64
+      containers:
+        - name: server
+          image: happy-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3005
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

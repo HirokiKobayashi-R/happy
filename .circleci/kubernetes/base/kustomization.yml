@@ -1,0 +1,6 @@
+resources:
+  - deployment-server.yml
+  - deployment-webapp.yml
+  - service-server.yml
+  - service-webapp.yml
+  - ingress.yml

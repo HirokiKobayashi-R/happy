@@ -1,0 +1,17 @@
+namespace: happy-prod
+
+resources:
+  - ../../../base
+  - namespace.yml
+
+patches:
+  - target:
+      kind: Ingress
+      name: happy-ingress
+    patch: |-
+      - op: add
+        path: /metadata/annotations/external-dns.alpha.kubernetes.io~1hostname
+        value: __HOST_NAME__
+      - op: add
+        path: /metadata/annotations/alb.ingress.kubernetes.io~1certificate-arn
+        value: __ACM_ARN__
