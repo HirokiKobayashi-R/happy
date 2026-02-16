@@ -32,6 +32,8 @@ jobs:
     parameters:
       apply-path:
         type: string
+      secret-name:
+        type: string
     steps:
       - checkout
       - aws-cli/setup:
@@ -47,6 +49,14 @@ jobs:
           version: v5.8.1
       - package/install-skaffold:
           version: v2.17.2
+      - run:
+          name: get secret from AWS Secret Manager
+          working_directory: .circleci/kubernetes/base
+          command: |
+            aws secretsmanager get-secret-value \
+              --secret-id << parameters.secret-name >> \
+              --profile WEB_IDENTITY_PROFILE \
+              --region ${AWS_DEFAULT_REGION} | jq -r '.SecretString' > env
       - run:
           name: apply
           working_directory: << parameters.apply-path >>
@@ -75,6 +85,7 @@ workflows:
       #     repo: happy-webapp
       - apply:
           apply-path: .circleci/kubernetes/overlays/prod
+          secret-name: happy/env/prod
           # requires:
           #   - build-server
           #   - build-webapp

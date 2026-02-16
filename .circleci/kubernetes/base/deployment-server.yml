@@ -14,12 +14,19 @@ spec:
     spec:
       nodeSelector:
         karpenter.sh/nodepool: spondemand-amd64
+      volumes:
+        - name: env
+          configMap:
+            name: happy-server-env
       containers:
         - name: server
           image: happy-server:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3005
+          envFrom:
+            - configMapRef:
+                name: happy-server-env
           resources:
             requests:
               cpu: 100m

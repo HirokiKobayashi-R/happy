@@ -4,3 +4,8 @@ resources:
   - service-server.yml
   - service-webapp.yml
   - ingress.yml
+
+configMapGenerator:
+  - name: happy-server-env
+    envs:
+      - env
