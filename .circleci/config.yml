@@ -42,6 +42,7 @@ jobs:
           aws_profile: WEB_IDENTITY_PROFILE
           cluster_name: ${CLUSTER_NAME}
           aws_region: ${AWS_DEFAULT_REGION}
+          install_kubectl: true
       - package/install-kustomize:
           version: v5.8.1
       - package/install-skaffold:
