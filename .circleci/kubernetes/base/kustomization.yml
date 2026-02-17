@@ -1,9 +1,10 @@
 resources:
   - deployment-server.yml
   - deployment-webapp.yml
+  - ingress.yml
   - service-server.yml
   - service-webapp.yml
-  - ingress.yml
+  - statefulset-postgres.yml
 
 configMapGenerator:
   - name: happy-server-env
