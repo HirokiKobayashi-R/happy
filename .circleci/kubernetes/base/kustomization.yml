@@ -3,6 +3,8 @@ resources:
   - deployment-webapp.yml
   - ingress.yml
   - secret-postgres.yml
+  - service-postgres.yml
+  - service-redis.yml
   - service-server.yml
   - service-webapp.yml
   - statefulset-postgres.yml
